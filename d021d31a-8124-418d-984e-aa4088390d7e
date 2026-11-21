@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+"""Bundle src/ into a single self-contained index.html.
+
+Usage:  python3 build.py
+Edit files in src/, then re-run this to regenerate index.html.
+"""
+from pathlib import Path
+
+ROOT = Path(__file__).parent
+SRC = ROOT / "src"
+
+css = "\n".join((SRC / f).read_text() for f in ["base.css", "pages.css", "theme.css"])
+js = "\n".join((SRC / f).read_text() for f in ["data.js", "core.js", "home.js", "pages.js"])
+assert "</script" not in js, "JS must not contain a closing script tag"
+
+shell = (SRC / "shell.html").read_text()
+out = shell.replace("/*__CSS__*/", css).replace("/*__JS__*/", js)
+(ROOT / "index.html").write_text(out)
+print(f"index.html written — {len(out) / 1024:.0f} KB")
